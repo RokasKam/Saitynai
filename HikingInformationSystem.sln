@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HikingInformationSystem", "HikingInformationSystem\HikingInformationSystem.csproj", "{AB1A4B5D-7AA7-45C9-A2C9-F3BB1450A132}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HikingInforamtionSystemCore", "HikingInforamtionSystemCore\HikingInforamtionSystemCore.csproj", "{F82D6A76-8719-4FD9-B765-3DC864E16C50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HikingInformationSystemInfrastructure", "HikingInformationSystemInfrastructure\HikingInformationSystemInfrastructure.csproj", "{11636CF5-02AC-42BD-8DC7-0B5B6052A3A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HikingInformationSystemDomain", "HikingInformationSystemDomain\HikingInformationSystemDomain.csproj", "{D5EC3EFF-88AA-455C-9DE5-5FC6CE85CE0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB1A4B5D-7AA7-45C9-A2C9-F3BB1450A132}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB1A4B5D-7AA7-45C9-A2C9-F3BB1450A132}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB1A4B5D-7AA7-45C9-A2C9-F3BB1450A132}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB1A4B5D-7AA7-45C9-A2C9-F3BB1450A132}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F82D6A76-8719-4FD9-B765-3DC864E16C50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F82D6A76-8719-4FD9-B765-3DC864E16C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F82D6A76-8719-4FD9-B765-3DC864E16C50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F82D6A76-8719-4FD9-B765-3DC864E16C50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11636CF5-02AC-42BD-8DC7-0B5B6052A3A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11636CF5-02AC-42BD-8DC7-0B5B6052A3A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11636CF5-02AC-42BD-8DC7-0B5B6052A3A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11636CF5-02AC-42BD-8DC7-0B5B6052A3A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5EC3EFF-88AA-455C-9DE5-5FC6CE85CE0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5EC3EFF-88AA-455C-9DE5-5FC6CE85CE0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5EC3EFF-88AA-455C-9DE5-5FC6CE85CE0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5EC3EFF-88AA-455C-9DE5-5FC6CE85CE0E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

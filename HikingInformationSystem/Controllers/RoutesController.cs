@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HikingInformationSystem.Controllers;
 
-public class RouteController : BaseController
+public class RoutesController : BaseController
 {
     private readonly IRouteService _routeService;
 
-    public RouteController(IRouteService routeService)
+    public RoutesController(IRouteService routeService)
     {
         _routeService = routeService;
     }
@@ -18,13 +18,6 @@ public class RouteController : BaseController
     public IActionResult GetRouteById(Guid id)
     {
         var route = _routeService.GetRouteById(id);
-        return Ok(route);
-    }
-    
-    [HttpGet("{id}")]
-    public IActionResult GetRouteWithPointsById(Guid id)
-    {
-        var route = _routeService.GetRouteWithPointsById(id);
         return Ok(route);
     }
 

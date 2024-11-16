@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HikingInformationSystem.Controllers;
 
-public class HikeController : BaseController
+public class HikesController : BaseController
 {
     private readonly IHikeService _hikeService;
 
-    public HikeController(IHikeService hikeService)
+    public HikesController(IHikeService hikeService)
     {
         _hikeService = hikeService;
     }
@@ -25,6 +25,13 @@ public class HikeController : BaseController
     public IActionResult GetHikes()
     {
         var hikes = _hikeService.GetHikes();
+        return Ok(hikes);
+    }
+    
+    [HttpGet("/{hikeId}/Routes/{routeId}/Points")]
+    public IActionResult GetHike(Guid hikeId, Guid routeId)
+    {
+        var hikes = _hikeService.GetHikeWithSpecificRouteAndPoints(routeId, hikeId);
         return Ok(hikes);
     }
 
@@ -43,7 +50,7 @@ public class HikeController : BaseController
     }
 
     [HttpDelete("{id}")]
-    public ActionResult<bool> DeleteHike(Guid id)
+    public IActionResult DeleteHike(Guid id)
     {
         return Ok(_hikeService.DeleteHike(id));
     }

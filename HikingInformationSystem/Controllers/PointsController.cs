@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HikingInformationSystem.Controllers;
 
-public class PointController : BaseController
+public class PointsController : BaseController
 {
     private readonly IPointService _pointService;
 
-    public PointController(IPointService pointService)
+    public PointsController(IPointService pointService)
     {
         _pointService = pointService;
     }

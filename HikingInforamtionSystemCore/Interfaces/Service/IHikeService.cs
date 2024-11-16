@@ -7,6 +7,7 @@ public interface IHikeService
 {
     HikeResponse GetHikeById(Guid id);
     IEnumerable<HikeResponse> GetHikes();
+    HikeWithSpecificRouteAndPoints GetHikeWithSpecificRouteAndPoints(Guid routeId, Guid hikeId);
     Guid AddHike(HikeRequest hikeRequest);
     bool UpdateHike(Guid id, HikeRequest hikeRequest);
     bool DeleteHike(Guid id);

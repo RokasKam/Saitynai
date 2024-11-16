@@ -3,6 +3,8 @@ using HikingInforamtionSystemCore.Interfaces;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Hike;
 using HikingInforamtionSystemCore.Responses.Hike;
+using HikingInforamtionSystemCore.Responses.Point;
+using HikingInforamtionSystemCore.Responses.Route;
 using HikingInformationSystemDomain.Entities;
 using HikingInformationSystemDomain.Exceptions;
 
@@ -11,12 +13,16 @@ namespace HikingInforamtionSystemCore.Services;
 public class HikeService : IHikeService
 {
     private readonly IHikeRepository _hikeRepository;
+    private readonly IRouteRepository _routeRepository;
+    private readonly IPointRepository _pointRepository;
     private readonly IMapper _mapper;
 
-    public HikeService(IHikeRepository hikeRepository, IMapper mapper)
+    public HikeService(IHikeRepository hikeRepository, IMapper mapper, IPointRepository pointRepository, IRouteRepository routeRepository)
     {
         _hikeRepository = hikeRepository;
         _mapper = mapper;
+        _pointRepository = pointRepository;
+        _routeRepository = routeRepository;
     }
 
     public HikeResponse GetHikeById(Guid id)
@@ -36,6 +42,32 @@ public class HikeService : IHikeService
         var hikeEntities = _hikeRepository.GetHikes();
         var hikeResponses = _mapper.Map<IEnumerable<HikeResponse>>(hikeEntities);
         return hikeResponses;
+    }
+
+    public HikeWithSpecificRouteAndPoints GetHikeWithSpecificRouteAndPoints(Guid routeId, Guid hikeId)
+    {
+        var hikeEntity = _hikeRepository.GetHikeById(hikeId);
+        if (hikeEntity == null)
+        {
+            throw new NotFoundException($"Hike with Id: {hikeId} was not found");
+        }
+        
+        var routeEntity = _routeRepository.GetRouteById(routeId);
+        if (routeEntity == null)
+        {
+            throw new NotFoundException($"Route with Id: {routeId} was not found");
+        }
+
+        if (hikeEntity.Id != routeEntity.HikeId)
+        {
+            throw new NotFoundException($"Hike {hikeId} does not contain {routeId} route");
+        }
+
+        var pointsResponse = _pointRepository.GetPointsByRouteId(routeId);
+        var hikeResponse = _mapper.Map<HikeWithSpecificRouteAndPoints>(hikeEntity);
+        hikeResponse.RouteWithPoints = _mapper.Map<RouteWithPointsResponse>(routeEntity);
+        hikeResponse.RouteWithPoints.Points = _mapper.Map<IEnumerable<PointResponse>>(pointsResponse);
+        return hikeResponse;
     }
 
     public Guid AddHike(HikeRequest hikeRequest)

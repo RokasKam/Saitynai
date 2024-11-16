@@ -36,20 +36,6 @@ public class RouteService : IRouteService
         return routeResponse;
     }
 
-    public RouteWithPointsResponse GetRouteWithPointsById(Guid id)
-    {
-        var routeEntity = _routeRepository.GetRouteById(id);
-        if (routeEntity == null)
-        {
-            throw new NotFoundException($"Route with Id: {id} was not found");
-        }
-
-        var routeWithPointsResponse = _mapper.Map<RouteWithPointsResponse>(routeEntity);
-        var points = _pointRepository.GetPointsByRouteId(id);
-        routeWithPointsResponse.Points = _mapper.Map<IEnumerable<PointResponse>>(points);
-        return routeWithPointsResponse;
-    }
-
     public IEnumerable<RouteResponse> GetRoutes()
     {
         var routeEntities = _routeRepository.GetRoutes();

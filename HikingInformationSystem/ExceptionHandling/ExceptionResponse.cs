@@ -5,13 +5,9 @@ namespace HikingInformationSystem.ExceptionHandling;
 public class ExceptionResponse
 {
     public int StatusCode { get; set; }
-    public string Message { get; set; }
-        
-    public ExceptionResponse()
-    {
-    }
+    public string? Message { get; set; }
 
-    public ExceptionResponse(int statusCode, string message)
+    public ExceptionResponse(int statusCode, string? message)
     {
         StatusCode = statusCode;
         Message = message;

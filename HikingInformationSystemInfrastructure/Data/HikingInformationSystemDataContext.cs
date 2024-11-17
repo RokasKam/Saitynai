@@ -1,10 +1,11 @@
 using HikingInformationSystemDomain.Entities;
 using HikingInformationSystemInfrastructure.Data.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HikingInformationSystemInfrastructure.Data;
 
-public class HikingInformationSystemDataContext : DbContext
+public class HikingInformationSystemDataContext : IdentityDbContext<User>
 {
     public DbSet<Hike> Hikes { get; set; }
     public DbSet<Route> Routes { get; set; }

@@ -1,10 +1,10 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Seeders;
 using HikingInforamtionSystemCore.Services;
-using HikingInformationSystem.Controllers;
 using HikingInformationSystem.ExceptionHandling;
 using HikingInformationSystemDomain.Entities;
 using HikingInformationSystemInfrastructure.Data;
@@ -70,7 +70,22 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters.ValidAlgorithms = [SecurityAlgorithms.HmacSha256];
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(PolicyNames.AdminRole, policy =>
+        policy.RequireRole(UserRoles.Admin));
+
+    options.AddPolicy(PolicyNames.OrganizerRole, policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole(UserRoles.Hiker) ||
+            context.User.IsInRole(UserRoles.Organizer)));
+
+    options.AddPolicy(PolicyNames.HikerRole, policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole(UserRoles.Hiker) || 
+            context.User.IsInRole(UserRoles.Organizer) || 
+            context.User.IsInRole(UserRoles.Admin)));
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -122,11 +137,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<HikingInformationSystemDataContext>();

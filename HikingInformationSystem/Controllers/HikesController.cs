@@ -1,6 +1,10 @@
+using System.Security.Claims;
+using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Hike;
 using HikingInforamtionSystemCore.Responses.Hike;
+using HikingInformationSystemDomain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HikingInformationSystem.Controllers;
@@ -13,7 +17,7 @@ public class HikesController : BaseController
     {
         _hikeService = hikeService;
     }
-    
+    [Authorize(Policy = PolicyNames.HikerRole)]
     [HttpGet("{id}")]
     public IActionResult GetHikeById(Guid id)
     {
@@ -38,7 +42,11 @@ public class HikesController : BaseController
     [HttpPost]
     public IActionResult AddHike([FromBody] HikeRequest hikeRequest)
     {
-        var createdHikeId = _hikeService.AddHike(hikeRequest);
+        if (User.IsInRole(UserRoles.Hiker))
+        {
+            return Forbid();
+        }
+        var createdHikeId = _hikeService.AddHike(hikeRequest, User.FindFirstValue(ClaimTypes.NameIdentifier));
         return CreatedAtAction(nameof(GetHikeById), new { id = createdHikeId }, createdHikeId);
     }
 

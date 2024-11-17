@@ -12,6 +12,8 @@ public class Hike : BaseEntity
     public TerrainTypeEnum TerrainType { get; set; }
     public bool SuitableForBeginners { get; set; }
     public AccessibilityEnum Accessibility { get; set; }
+    public string CreatorId { get; set; }
+    public User Creator { get; set; }
     public ICollection<Route> Routes { get; set; }
 }
 

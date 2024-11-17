@@ -1,6 +1,6 @@
+using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Auth;
-using HikingInformationSystemDomain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,7 @@ public class AuthController : BaseController
     {
         _authService = authService;
     }
-
+    [AllowAnonymous]
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest registerRequest)
@@ -23,6 +23,7 @@ public class AuthController : BaseController
         return Ok(await _authService.Register(registerRequest));
     }
     
+    [AllowAnonymous]
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginRequest loginRequest)
@@ -30,7 +31,7 @@ public class AuthController : BaseController
         return Ok(await _authService.Login(loginRequest));
     }
     
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = PolicyNames.HikerRole)]
     [HttpPost]
     [Route("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenRequest refreshRequest)

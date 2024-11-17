@@ -70,9 +70,10 @@ public class HikeService : IHikeService
         return hikeResponse;
     }
 
-    public Guid AddHike(HikeRequest hikeRequest)
+    public Guid AddHike(HikeRequest hikeRequest, string userId)
     {
         var hikeEntity = _mapper.Map<Hike>(hikeRequest);
+        hikeEntity.CreatorId = userId;
         var hikeId = _hikeRepository.AddHike(hikeEntity);
         return hikeId;
     }

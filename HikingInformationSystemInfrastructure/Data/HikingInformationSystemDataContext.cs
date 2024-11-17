@@ -1,5 +1,6 @@
 using HikingInformationSystemDomain.Entities;
 using HikingInformationSystemInfrastructure.Data.Configuration;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,8 @@
+using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Point;
 using HikingInforamtionSystemCore.Responses.Point;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HikingInformationSystem.Controllers;
@@ -14,6 +16,7 @@ public class PointsController : BaseController
         _pointService = pointService;
     }
     
+    [Authorize(Policy = PolicyNames.HikerRole)]
     [HttpGet("{id}")]
     public IActionResult GetPointById(Guid id)
     {
@@ -21,6 +24,7 @@ public class PointsController : BaseController
         return Ok(point);
     }
 
+    [Authorize(Policy = PolicyNames.HikerRole)]
     [HttpGet]
     public IActionResult GetPoints()
     {
@@ -28,6 +32,7 @@ public class PointsController : BaseController
         return Ok(points);
     }
 
+    [Authorize(Policy = PolicyNames.OrganizerRole)]
     [HttpPost]
     public IActionResult AddPoint([FromBody] PointRequest pointRequest)
     {
@@ -35,13 +40,14 @@ public class PointsController : BaseController
         return CreatedAtAction(nameof(GetPointById), new { id = createdPointId }, createdPointId);
     }
 
+    [Authorize(Policy = PolicyNames.OrganizerRole)]
     [HttpPut("{id}")]
     public IActionResult UpdatePoint(Guid id, [FromBody] PointRequest pointRequest)
     {
         var result = _pointService.UpdatePoint(id, pointRequest);
         return Ok(result);
     }
-
+    [Authorize(Policy = PolicyNames.OrganizerRole)]
     [HttpDelete("{id}")]
     public IActionResult DeletePoint(Guid id)
     {

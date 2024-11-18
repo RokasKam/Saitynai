@@ -13,14 +13,16 @@ namespace HikingInforamtionSystemCore.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IConfiguration _configuration;
     
-    public AuthService(IJwtTokenService jwtTokenService, UserManager<User> userManager, IConfiguration configuration)
+    public AuthService(IJwtTokenService jwtTokenService, UserManager<User> userManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
     {
         _jwtTokenService = jwtTokenService;
         _userManager = userManager;
         _configuration = configuration;
+        _roleManager = roleManager;
     }
 
     public async Task<SuccessfulLoginResponse> Login(LoginRequest loginRequest)
@@ -131,5 +133,23 @@ public class AuthService : IAuthService
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(refreshTokenValidityDays);
 
         await _userManager.UpdateAsync(user);
+    }
+    
+    public async Task ChangeUserRole(ChangeUserRole changeUserRole)
+    {
+        var user = await _userManager.FindByIdAsync(changeUserRole.UserId);
+        if (user == null)
+        {
+            throw new NotFoundException("User not found");
+        }
+
+        if (!await _roleManager.RoleExistsAsync(changeUserRole.NewRole))
+        {
+            throw new NotFoundException("Role does not exist");
+        }
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        await _userManager.RemoveFromRolesAsync(user, currentRoles); 
+        await _userManager.AddToRoleAsync(user, changeUserRole.NewRole);
     }
 }

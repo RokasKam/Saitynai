@@ -77,7 +77,7 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy(PolicyNames.OrganizerRole, policy =>
         policy.RequireAssertion(context =>
-            context.User.IsInRole(UserRoles.Hiker) ||
+            context.User.IsInRole(UserRoles.Admin) ||
             context.User.IsInRole(UserRoles.Organizer)));
 
     options.AddPolicy(PolicyNames.HikerRole, policy =>

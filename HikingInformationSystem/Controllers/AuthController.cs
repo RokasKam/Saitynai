@@ -1,7 +1,6 @@
 using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,5 +36,14 @@ public class AuthController : BaseController
     public async Task<IActionResult> Refresh(RefreshTokenRequest refreshRequest)
     {
         return Ok(await _authService.RefreshToken(refreshRequest));
+    }
+    
+    [Authorize(Policy = PolicyNames.AdminRole)]
+    [HttpPost]
+    [Route("change-role")]
+    public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRole request)
+    {
+        await _authService.ChangeUserRole(request);
+        return Ok(new { Message = "User role updated successfully" });
     }
 }

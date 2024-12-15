@@ -1,7 +1,7 @@
+using System.Security.Claims;
 using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Point;
-using HikingInforamtionSystemCore.Responses.Point;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,13 +44,13 @@ public class PointsController : BaseController
     [HttpPut("{id}")]
     public IActionResult UpdatePoint(Guid id, [FromBody] PointRequest pointRequest)
     {
-        var result = _pointService.UpdatePoint(id, pointRequest);
+        var result = _pointService.UpdatePoint(id, pointRequest, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         return Ok(result);
     }
     [Authorize(Policy = PolicyNames.OrganizerRole)]
     [HttpDelete("{id}")]
     public IActionResult DeletePoint(Guid id)
     {
-        return Ok(_pointService.DeletePoint(id));
+        return Ok(_pointService.DeletePoint(id, User.FindFirstValue(ClaimTypes.NameIdentifier)!));
     }
 }

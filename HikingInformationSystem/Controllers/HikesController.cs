@@ -2,7 +2,6 @@ using System.Security.Claims;
 using HikingInforamtionSystemCore.Helpers.Auth;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Hike;
-using HikingInformationSystemDomain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,22 +32,34 @@ public class HikesController : BaseController
     }
     
     [Authorize(Policy = PolicyNames.OrganizerRole)]
-    [HttpGet("/{hikeId}/Routes/{routeId}/Points")]
+    [HttpGet("creator-hikes")]
+    public IActionResult GetHikesByCreator()
+    {
+        var hikes = _hikeService.GetHikesByCreatorId(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        return Ok(hikes);
+    }
+    
+    [Authorize(Policy = PolicyNames.HikerRole)]
+    [HttpGet("{hikeId}/Routes/{routeId}/Points")]
     public IActionResult GetHike(Guid hikeId, Guid routeId)
     {
         var hikes = _hikeService.GetHikeWithSpecificRouteAndPoints(routeId, hikeId);
         return Ok(hikes);
     }
-
+    
     [Authorize(Policy = PolicyNames.HikerRole)]
+    [HttpGet("{hikeId}/Routes")]
+    public IActionResult GetHikeWithRoutes(Guid hikeId)
+    {
+        var hikes = _hikeService.GetHikeWithRoutes(hikeId);
+        return Ok(hikes);
+    }
+
+    [Authorize(Policy = PolicyNames.OrganizerRole)]
     [HttpPost]
     public IActionResult AddHike([FromBody] HikeRequest hikeRequest)
     {
-        if (User.IsInRole(UserRoles.Hiker))
-        {
-            return Forbid();
-        }
-        var createdHikeId = _hikeService.AddHike(hikeRequest, User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var createdHikeId = _hikeService.AddHike(hikeRequest, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         return CreatedAtAction(nameof(GetHikeById), new { id = createdHikeId }, createdHikeId);
     }
 
@@ -56,13 +67,13 @@ public class HikesController : BaseController
     [HttpPut("{id}")]
     public IActionResult UpdateHike(Guid id, [FromBody] HikeRequest hikeRequest)
     {
-        var result = _hikeService.UpdateHike(id, hikeRequest);
+        var result = _hikeService.UpdateHike(id, hikeRequest, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         return Ok(result);
     }
     [Authorize(Policy = PolicyNames.AdminRole)]
     [HttpDelete("{id}")]
     public IActionResult DeleteHike(Guid id)
     {
-        return Ok(_hikeService.DeleteHike(id));
+        return Ok(_hikeService.DeleteHike(id, User.FindFirstValue(ClaimTypes.NameIdentifier)!));
     }
 }

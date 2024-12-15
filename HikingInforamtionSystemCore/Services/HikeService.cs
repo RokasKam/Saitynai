@@ -44,6 +44,12 @@ public class HikeService : IHikeService
         return hikeResponses;
     }
 
+    public IEnumerable<HikeResponse> GetHikesByCreatorId(string creatorId)
+    {
+        var hikeEntities = _hikeRepository.GetHikesByCreator(creatorId);
+        var hikeResponses = _mapper.Map<IEnumerable<HikeResponse>>(hikeEntities);
+        return hikeResponses;    }
+
     public HikeWithSpecificRouteAndPoints GetHikeWithSpecificRouteAndPoints(Guid routeId, Guid hikeId)
     {
         var hikeEntity = _hikeRepository.GetHikeById(hikeId);
@@ -70,6 +76,19 @@ public class HikeService : IHikeService
         return hikeResponse;
     }
 
+    public HikeWithRoutes GetHikeWithRoutes(Guid hikeId)
+    {
+        var hikeEntity = _hikeRepository.GetHikeById(hikeId);
+        if (hikeEntity == null)
+        {
+            throw new NotFoundException($"Hike with Id: {hikeId} was not found");
+        }
+        var routeEntities = _routeRepository.GetRoutesByHikeId(hikeId);
+        var hikeResponse = _mapper.Map<HikeWithRoutes>(hikeEntity);
+        hikeResponse.Routes = _mapper.Map<IEnumerable<RouteResponse>>(routeEntities);
+        return hikeResponse;
+    }
+
     public Guid AddHike(HikeRequest hikeRequest, string userId)
     {
         var hikeEntity = _mapper.Map<Hike>(hikeRequest);
@@ -78,27 +97,36 @@ public class HikeService : IHikeService
         return hikeId;
     }
 
-    public bool UpdateHike(Guid id, HikeRequest hikeRequest)
+    public bool UpdateHike(Guid id, HikeRequest hikeRequest, string userId)
     {
-        var hikeExists = _hikeRepository.HikeExists(id);
-        if (!hikeExists)
+        var oldHikeEntity = _hikeRepository.GetHikeById(id);
+        if (oldHikeEntity == null)
         {
             throw new NotFoundException($"Hike with Id: {id} was not found");
+        }
+        if (oldHikeEntity.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot edit the hike with Id: {id}");
         }
 
         var hikeEntity = _mapper.Map<Hike>(hikeRequest);
         hikeEntity.Id = id;
+        hikeEntity.CreatorId = oldHikeEntity.CreatorId;
 
         var result = _hikeRepository.UpdateHike(hikeEntity);
         return result;
     }
 
-    public bool DeleteHike(Guid id)
+    public bool DeleteHike(Guid id, string userId)
     {
-        var hikeExists = _hikeRepository.HikeExists(id);
-        if (!hikeExists)
+        var oldHikeEntity = _hikeRepository.GetHikeById(id);
+        if (oldHikeEntity == null)
         {
             throw new NotFoundException($"Hike with Id: {id} was not found");
+        }
+        if (oldHikeEntity.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot delete the hike with Id: {id}");
         }
 
         var result = _hikeRepository.DeleteHike(id);

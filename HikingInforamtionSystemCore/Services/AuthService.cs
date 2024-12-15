@@ -1,12 +1,13 @@
 using System.Security.Claims;
+using AutoMapper;
 using HikingInforamtionSystemCore.Interfaces.Service;
 using HikingInforamtionSystemCore.Requests.Auth;
 using HikingInforamtionSystemCore.Responses.Auth;
 using HikingInformationSystemDomain.Entities;
 using HikingInformationSystemDomain.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace HikingInforamtionSystemCore.Services;
 
@@ -16,13 +17,15 @@ public class AuthService : IAuthService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IConfiguration _configuration;
+    private readonly IMapper _mapper;
     
-    public AuthService(IJwtTokenService jwtTokenService, UserManager<User> userManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
+    public AuthService(IJwtTokenService jwtTokenService, UserManager<User> userManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IMapper mapper)
     {
         _jwtTokenService = jwtTokenService;
         _userManager = userManager;
         _configuration = configuration;
         _roleManager = roleManager;
+        _mapper = mapper;
     }
 
     public async Task<SuccessfulLoginResponse> Login(LoginRequest loginRequest)
@@ -57,15 +60,10 @@ public class AuthService : IAuthService
 
         if (userTaken != null)
         {
-            throw new NotFoundException("Invalid username or password");
+            throw new NotFoundException("User already exists.");
         }
-        //Todo: Add to automapper
-        var newUser = new User()
-        {
-            Email = registerRequest.Email,
-            UserName = registerRequest.Email
-        };
-
+        
+        var newUser = _mapper.Map<User>(registerRequest);
         var createUserResult = await _userManager.CreateAsync(newUser, registerRequest.Password);
 
         if (createUserResult.Succeeded)
@@ -78,7 +76,7 @@ public class AuthService : IAuthService
 
             await UpdateUsersRefreshTokenWithExpiration(createdUser);
 
-            return new SuccessfulLoginResponse()
+            return new SuccessfulLoginResponse
             {
                 AccessToken = accessToken, 
                 RefreshToken = createdUser.RefreshToken
@@ -135,12 +133,17 @@ public class AuthService : IAuthService
         await _userManager.UpdateAsync(user);
     }
     
-    public async Task ChangeUserRole(ChangeUserRole changeUserRole)
+    public async Task ChangeUserRole(ChangeUserRole changeUserRole, string currentUserId)
     {
         var user = await _userManager.FindByIdAsync(changeUserRole.UserId);
         if (user == null)
         {
             throw new NotFoundException("User not found");
+        }
+
+        if (changeUserRole.UserId == currentUserId)
+        {
+            throw new ForbbidenException("You cannot change the role of your own");
         }
 
         if (!await _roleManager.RoleExistsAsync(changeUserRole.NewRole))
@@ -151,5 +154,37 @@ public class AuthService : IAuthService
         var currentRoles = await _userManager.GetRolesAsync(user);
         await _userManager.RemoveFromRolesAsync(user, currentRoles); 
         await _userManager.AddToRoleAsync(user, changeUserRole.NewRole);
+    }
+
+    public async Task<IEnumerable<UserResponse>> GetUsers()
+    {
+        var userEntities = await _userManager.Users.ToListAsync();
+
+        var userResponses = new List<UserResponse>();
+
+        foreach (var user in userEntities)
+        {
+            var roles = await _userManager.GetRolesAsync(user); 
+            var userResponse = _mapper.Map<UserResponse>(user);
+            userResponse.Role = roles.First();
+            userResponses.Add(userResponse);
+        }
+
+        return userResponses;
+
+    }
+
+    public async Task<UserResponse> GetUserById(string id)
+    {
+        var userEntity = await _userManager.FindByIdAsync(id);
+        if (userEntity == null)
+        {
+            throw new NotFoundException($"User with Id: {id} was not found");
+        }
+
+        var userResponse = _mapper.Map<UserResponse>(userEntity);
+        var roles = await _userManager.GetRolesAsync(userEntity);
+        userResponse.Role = roles.First();
+        return userResponse;
     }
 }

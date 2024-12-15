@@ -16,12 +16,19 @@ public class RouteRepository : IRouteRepository
 
     public Route? GetRouteById(Guid id)
     {
-        return _context.Routes.FirstOrDefault(h => h.Id == id);
+        return _context.Routes
+            .Include(r=>r.Hike) 
+            .FirstOrDefault(r => r.Id == id);
     }
 
     public IEnumerable<Route> GetRoutes()
     {
         return _context.Routes.ToList();
+    }
+
+    public IEnumerable<Route> GetRoutesByHikeId(Guid hikeId)
+    {
+        return _context.Routes.Where(r => r.HikeId == hikeId).ToList();
     }
 
     public bool DeleteRoute(Guid id)
@@ -41,10 +48,19 @@ public class RouteRepository : IRouteRepository
 
     public bool UpdateRoute(Route route)
     {
-        _context.Routes.Update(route);
+        var existingRoute = _context.Routes.FirstOrDefault(r => r.Id == route.Id);
+        if (existingRoute != null)
+        {
+            _context.Entry(existingRoute).State = EntityState.Detached;
+        }
+
+        _context.Routes.Attach(route);
+        _context.Entry(route).State = EntityState.Modified;
+
         _context.SaveChanges();
         return true;
     }
+
 
     public bool RouteExists(Guid id)
     {

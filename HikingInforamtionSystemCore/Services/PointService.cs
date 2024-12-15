@@ -53,12 +53,17 @@ public class PointService : IPointService
         return pointId;
     }
 
-    public bool UpdatePoint(Guid id, PointRequest pointRequest)
+    public bool UpdatePoint(Guid id, PointRequest pointRequest, string userId)
     {
-        var pointExists = _pointRepository.PointExists(id);
-        if (!pointExists)
+        var point = _pointRepository.GetPointById(id);
+        if (point == null)
         {
             throw new NotFoundException($"Point with Id: {id} was not found");
+        }
+
+        if (point.Route.Hike.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot edit the point with Id: {id}");
         }
         
         var routeExists = _routeRepository.RouteExists(pointRequest.RouteId);
@@ -74,12 +79,17 @@ public class PointService : IPointService
         return result;
     }
 
-    public bool DeletePoint(Guid id)
+    public bool DeletePoint(Guid id, string userId)
     {
-        var pointExists = _pointRepository.PointExists(id);
-        if (!pointExists)
+        var point = _pointRepository.GetPointById(id);
+        if (point == null)
         {
             throw new NotFoundException($"Point with Id: {id} was not found");
+        }
+
+        if (point.Route.Hike.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot delete the point with Id: {id}");
         }
 
         var result = _pointRepository.DeletePoint(id);

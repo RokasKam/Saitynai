@@ -43,6 +43,20 @@ public class RouteService : IRouteService
         return routeResponses;
     }
 
+    public RouteWithPointsResponse GetRouteWithPoints(Guid routeId)
+    {
+        var routeEntity = _routeRepository.GetRouteById(routeId);
+        if (routeEntity == null)
+        {
+            throw new NotFoundException($"Route with Id: {routeId} was not found");
+        }
+
+        var pointsResponse = _pointRepository.GetPointsByRouteId(routeId);
+        var routeWithPoints = _mapper.Map<RouteWithPointsResponse>(routeEntity);
+        routeWithPoints.Points = _mapper.Map<IEnumerable<PointResponse>>(pointsResponse);
+        return routeWithPoints;
+    }
+
     public Guid AddRoute(RouteRequest routeRequest)
     {
         var hikeExists = _hikeRepository.HikeExists(routeRequest.HikeId);
@@ -56,12 +70,17 @@ public class RouteService : IRouteService
         return routeId;
     }
 
-    public bool UpdateRoute(Guid id, RouteRequest routeRequest)
+    public bool UpdateRoute(Guid id, RouteRequest routeRequest, string userId)
     {
-        var routeExists = _routeRepository.RouteExists(id);
-        if (!routeExists)
+        var route = _routeRepository.GetRouteById(id);
+        if (route == null)
         {
             throw new NotFoundException($"Route with Id: {id} was not found");
+        }
+
+        if (route.Hike.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot edit the route with Id: {id}");
         }
         
         var hikeExists = _hikeRepository.HikeExists(routeRequest.HikeId);
@@ -77,12 +96,17 @@ public class RouteService : IRouteService
         return result;
     }
 
-    public bool DeleteRoute(Guid id)
+    public bool DeleteRoute(Guid id, string userId)
     {
-        var routeExists = _routeRepository.RouteExists(id);
-        if (!routeExists)
+        var route = _routeRepository.GetRouteById(id);
+        if (route == null)
         {
             throw new NotFoundException($"Route with Id: {id} was not found");
+        }
+
+        if (route.Hike.CreatorId != userId)
+        {
+            throw new ForbbidenException($"You cannot delete the route with Id: {id}");
         }
 
         var result = _routeRepository.DeleteRoute(id);

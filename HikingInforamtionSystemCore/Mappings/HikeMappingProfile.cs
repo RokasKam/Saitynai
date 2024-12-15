@@ -12,5 +12,6 @@ public class HikeMappingProfile : Profile
         CreateMap<Hike, HikeResponse>();
         CreateMap<HikeRequest, Hike>();
         CreateMap<Hike, HikeWithSpecificRouteAndPoints>();
+        CreateMap<Hike, HikeWithRoutes>();
     }
 }

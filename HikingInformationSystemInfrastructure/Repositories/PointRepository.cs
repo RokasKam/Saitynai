@@ -16,7 +16,10 @@ public class PointRepository : IPointRepository
 
     public Point? GetPointById(Guid id)
     {
-        return _context.Points.FirstOrDefault(p => p.Id == id);
+        return _context.Points
+            .Include(p=>p.Route)
+            .ThenInclude(r=>r.Hike)
+            .FirstOrDefault(p => p.Id == id);
     }
 
     public IEnumerable<Point> GetPoints()

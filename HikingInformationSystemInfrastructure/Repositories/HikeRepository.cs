@@ -24,6 +24,12 @@ public class HikeRepository : IHikeRepository
         return _context.Hikes.ToList();
     }
 
+    public IEnumerable<Hike> GetHikesByCreator(string creatorId)
+    {
+        return _context.Hikes.Where(h=> h.CreatorId == creatorId).ToList();
+        
+    }
+
     public bool DeleteHike(Guid id)
     {
         _context.Hikes.Where(h => h.Id == id).ExecuteDelete();

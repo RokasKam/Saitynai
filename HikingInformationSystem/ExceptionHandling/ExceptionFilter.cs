@@ -29,6 +29,10 @@ public class ExceptionFilter : ExceptionFilterAttribute
         {
             httpStatusCode = HttpStatusCode.NotFound;
         }
+        if (exception.GetType() == typeof(ForbbidenException))
+        {
+            httpStatusCode = HttpStatusCode.Forbidden;
+        }
 
         var exceptionResponse = new ExceptionResponse((int)httpStatusCode, exception.Message);
         return exceptionResponse;

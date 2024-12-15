@@ -7,7 +7,8 @@ public interface IRouteService
 {
     RouteResponse GetRouteById(Guid id);
     IEnumerable<RouteResponse> GetRoutes();
+    RouteWithPointsResponse GetRouteWithPoints(Guid routeId);
     Guid AddRoute(RouteRequest routeRequest);
-    bool UpdateRoute(Guid id, RouteRequest routeRequest);
-    bool DeleteRoute(Guid id);
+    bool UpdateRoute(Guid id, RouteRequest routeRequest, string userId);
+    bool DeleteRoute(Guid id, string userId);
 }

@@ -47,7 +47,15 @@ public class HikeRepository : IHikeRepository
 
     public bool UpdateHike(Hike hike)
     {
-        _context.Hikes.Update(hike);
+        var existingHike = _context.Hikes.FirstOrDefault(r => r.Id == hike.Id);
+        if (existingHike != null)
+        {
+            _context.Entry(existingHike).State = EntityState.Detached;
+        }
+
+        _context.Hikes.Attach(hike);
+        _context.Entry(hike).State = EntityState.Modified;
+
         _context.SaveChanges();
         return true;
     }

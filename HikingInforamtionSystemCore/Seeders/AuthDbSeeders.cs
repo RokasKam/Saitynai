@@ -1,5 +1,6 @@
 using HikingInformationSystemDomain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace HikingInforamtionSystemCore.Seeders;
 
@@ -7,11 +8,13 @@ public class AuthDbSeeder
 {
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IConfiguration _configuration;
 
-    public AuthDbSeeder(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public AuthDbSeeder(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _configuration = configuration;
     }
 
     public async Task SeedAsync()
@@ -24,14 +27,14 @@ public class AuthDbSeeder
     {
         var newAdminUser = new User()
         {
-            Email = "admin@x.com",
-            UserName = "admin@x.com"
+            Email = _configuration["Admin:Email"],
+            UserName = _configuration["Admin:Email"],
         };
 
         var existingAdminUser = await _userManager.FindByEmailAsync(newAdminUser.Email);
         if (existingAdminUser == null)
         {
-            var createAdminUserResult = await _userManager.CreateAsync(newAdminUser, "VerySafePassword1!");
+            var createAdminUserResult = await _userManager.CreateAsync(newAdminUser, _configuration["Admin:Password"]);
             if (createAdminUserResult.Succeeded)
             {
                 await _userManager.AddToRoleAsync(newAdminUser, UserRoles.Admin);

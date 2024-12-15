@@ -44,7 +44,15 @@ public class PointRepository : IPointRepository
 
     public bool UpdatePoint(Point point)
     {
-        _context.Points.Update(point);
+        var existingPoint = _context.Points.FirstOrDefault(r => r.Id == point.Id);
+        if (existingPoint != null)
+        {
+            _context.Entry(existingPoint).State = EntityState.Detached;
+        }
+
+        _context.Points.Attach(point);
+        _context.Entry(point).State = EntityState.Modified;
+
         _context.SaveChanges();
         return true;
     }
